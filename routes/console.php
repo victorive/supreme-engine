@@ -1,8 +1,11 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use App\Models\UpdatedUserAttributes;
+use Illuminate\Support\Facades\Schedule;
+use App\Services\ThirdPartySyncService;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote')->hourly();
+Schedule::command('sync:user-attributes')->everyMinute()->when(function () {
+    return (new ThirdPartySyncService)->getBatchRequestCount() < 50 && UpdatedUserAttributes::where('status', 'pending')->exists();
+});
+
+Schedule::command('reset:api-request-counter')->hourly();
