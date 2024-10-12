@@ -32,12 +32,14 @@ class UpdateUserAttributesCommand extends Command
 
         try {
             User::query()->lazy()
-                ->each(function ($user) {
-                    $user->update([
+                ->each(function ($user): void {
+                    $userData = [
                         'first_name' => fake()->firstName(),
                         'last_name' => fake()->lastName(),
                         'timezone' => collect(['CET', 'CST', 'GMT+1'])->random(),
-                    ]);
+                    ];
+
+                    $user->update($userData);
                 });
         } catch (Exception $exception) {
             Log::error($exception);
